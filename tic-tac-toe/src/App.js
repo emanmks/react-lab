@@ -71,7 +71,7 @@ class Game extends Component {
   }
 
   handleClick(i) {
-    const history = this.state.history;
+    const history = this.state.history.slice(0, this.state.movesCounter + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
     if (checkWinner(squares) || squares[i]) {
@@ -83,14 +83,33 @@ class Game extends Component {
         squares: squares,
       }]),
       xIsNext: !this.state.xIsNext,
-      movesCounter: this.state.movesCounter + 1,
+      movesCounter: history.length,
     });
   }
 
+  jumpTo(step) {
+    this.setState({
+      movesCounter: step,
+      xIsNext: (step % 2) === 0,
+    });
+  }
+
+
   render() {
-    const history = this.state.history;
-    const current = history[history.length - 1];
-    const won = checkWinner(current.squares);
+    const history = this.state.history
+    const current = history[this.state.movesCounter]
+    const won = checkWinner(current.squares)
+
+    const moves = history.map((step, move) => {
+      const desc = move ?
+        'Go to move #' + move :
+        'Go to game start';
+      return (
+        <li key={move}>
+          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+        </li>
+      );
+    });
 
     let status;
     if (won) {
@@ -111,7 +130,7 @@ class Game extends Component {
         </div>
         <div className="game-info">
           <div>{ status }</div>
-          <ol>{/* TODO */}</ol>
+          <ol>{ moves }</ol>
         </div>
       </div>
     );
